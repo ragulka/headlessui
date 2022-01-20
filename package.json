@@ -15,7 +15,8 @@
     "shared": "yarn workspace @headlessui/shared",
     "build": "yarn workspaces run build",
     "test": "./scripts/test.sh",
-    "lint": "./scripts/lint.sh"
+    "lint": "./scripts/lint.sh",
+    "lint-check": "CI=true ./scripts/lint.sh"
   },
   "husky": {
     "hooks": {
@@ -23,7 +24,7 @@
     }
   },
   "lint-staged": {
-    "*": "yarn lint --check"
+    "*": "yarn lint-check"
   },
   "prettier": {
     "printWidth": 100,
