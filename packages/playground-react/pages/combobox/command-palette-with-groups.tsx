@@ -54,6 +54,7 @@ export default function Home() {
             onChange={setPerson}
             onSearch={setQuery}
             displayValue={(item) => item?.name}
+            /*@ts-ignore*/
             className="bg-white w-full shadow-sm border border-black/5 bg-clip-padding rounded overflow-hidden"
           >
             {({ activeIndex }) => {
