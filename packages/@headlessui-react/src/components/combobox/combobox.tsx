@@ -217,8 +217,10 @@ interface ComboboxRenderPropArg {
   activeIndex: number | null
 }
 
+type ComboboxPropsWeControl = 'onPointerLeave' | 'onMouseLeave' | 'value' | 'onChange'
+
 export function Combobox<TTag extends ElementType = typeof DEFAULT_COMBOBOX_TAG, TType = string>(
-  props: Props<TTag, ComboboxRenderPropArg, 'value' | 'onChange'> & {
+  props: Props<TTag, ComboboxRenderPropArg, ComboboxPropsWeControl> & {
     value: TType
     onChange(value: TType): void
     onSearch?(value: string): void
@@ -357,6 +359,17 @@ export function Combobox<TTag extends ElementType = typeof DEFAULT_COMBOBOX_TAG,
   // Ensure that we update the inputRef if the value changes
   useIsoMorphicEffect(syncInputValue, [syncInputValue])
 
+  let handleLeave = useCallback(() => {
+    if (disabled) return
+    if (activeOptionIndex === null) return
+    dispatch({ type: ActionTypes.GoToOption, focus: Focus.Nothing })
+  }, [disabled, activeOptionIndex, dispatch])
+
+  let propsWeControl = {
+    onPointerLeave: handleLeave,
+    onMouseLeave: handleLeave,
+  }
+
   return (
     <ComboboxActions.Provider value={actionsBag}>
       <ComboboxContext.Provider value={reducerBag}>
@@ -367,7 +380,10 @@ export function Combobox<TTag extends ElementType = typeof DEFAULT_COMBOBOX_TAG,
           })}
         >
           {render({
-            props: passThroughProps,
+            props: {
+              ...passThroughProps,
+              ...propsWeControl,
+            },
             slot,
             defaultTag: DEFAULT_COMBOBOX_TAG,
             name: 'Combobox',
@@ -817,8 +833,6 @@ function Option<
     onClick: handleClick,
     onPointerMove: handleMove,
     onMouseMove: handleMove,
-    onPointerLeave: handleLeave,
-    onMouseLeave: handleLeave,
   }
 
   return match(state.strategy, {
