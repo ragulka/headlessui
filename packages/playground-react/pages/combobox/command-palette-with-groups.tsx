@@ -35,7 +35,7 @@ export default function Home() {
   let people =
     query === ''
       ? everybody
-      : everybody.filter(person => person.name.toLowerCase().includes(query.toLowerCase()))
+      : everybody.filter((person) => person.name.toLowerCase().includes(query.toLowerCase()))
 
   let groups = people.reduce((groups, person) => {
     let lastNameLetter = person.name.split(' ')[1][0]
@@ -53,7 +53,7 @@ export default function Home() {
             value={activePerson}
             onChange={setPerson}
             onSearch={setQuery}
-            displayValue={item => item?.name}
+            displayValue={(item) => item?.name}
             className="bg-white w-full shadow-sm border border-black/5 bg-clip-padding rounded overflow-hidden"
           >
             {({ activeIndex }) => {
@@ -75,7 +75,7 @@ export default function Home() {
                         .map(([letter, people]) => (
                           <Fragment key={letter}>
                             <div className="bg-gray-100 px-4 py-2">{letter}</div>
-                            {people.map(person => (
+                            {people.map((person) => (
                               <Combobox.Option
                                 key={person.id}
                                 value={person}

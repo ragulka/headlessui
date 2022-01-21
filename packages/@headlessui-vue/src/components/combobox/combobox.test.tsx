@@ -54,7 +54,7 @@ beforeAll(() => {
 afterAll(() => jest.restoreAllMocks())
 
 function nextFrame() {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         resolve()
@@ -408,9 +408,7 @@ describe('Rendering', () => {
         renderTemplate({
           template: html`
             <Combobox v-model="value">
-              <ComboboxButton type="submit">
-                Trigger
-              </ComboboxButton>
+              <ComboboxButton type="submit"> Trigger </ComboboxButton>
             </Combobox>
           `,
           setup: () => ({ value: ref(null) }),
@@ -425,15 +423,13 @@ describe('Rendering', () => {
           renderTemplate({
             template: html`
               <Combobox v-model="value">
-                <ComboboxButton :as="CustomButton">
-                  Trigger
-                </ComboboxButton>
+                <ComboboxButton :as="CustomButton"> Trigger </ComboboxButton>
               </Combobox>
             `,
             setup: () => ({
               value: ref(null),
               CustomButton: defineComponent({
-                setup: props => () => h('button', { ...props }),
+                setup: (props) => () => h('button', { ...props }),
               }),
             }),
           })
@@ -448,9 +444,7 @@ describe('Rendering', () => {
         renderTemplate({
           template: html`
             <Combobox v-model="value">
-              <ComboboxButton as="div">
-                Trigger
-              </ComboboxButton>
+              <ComboboxButton as="div"> Trigger </ComboboxButton>
             </Combobox>
           `,
           setup: () => ({ value: ref(null) }),
@@ -465,15 +459,13 @@ describe('Rendering', () => {
           renderTemplate({
             template: html`
               <Combobox v-model="value">
-                <ComboboxButton :as="CustomButton">
-                  Trigger
-                </ComboboxButton>
+                <ComboboxButton :as="CustomButton"> Trigger </ComboboxButton>
               </Combobox>
             `,
             setup: () => ({
               value: ref(null),
               CustomButton: defineComponent({
-                setup: props => () => h('div', props),
+                setup: (props) => () => h('div', props),
               }),
             }),
           })
@@ -673,15 +665,9 @@ describe('Rendering composition', () => {
             <ComboboxInput />
             <ComboboxButton>Trigger</ComboboxButton>
             <ComboboxOptions>
-              <ComboboxOption as="button" value="a">
-                Option A
-              </ComboboxOption>
-              <ComboboxOption as="button" value="b">
-                Option B
-              </ComboboxOption>
-              <ComboboxOption as="button" value="c">
-                Option C
-              </ComboboxOption>
+              <ComboboxOption as="button" value="a"> Option A </ComboboxOption>
+              <ComboboxOption as="button" value="b"> Option B </ComboboxOption>
+              <ComboboxOption as="button" value="c"> Option C </ComboboxOption>
             </ComboboxOptions>
           </Combobox>
         `,
@@ -698,7 +684,7 @@ describe('Rendering composition', () => {
       await click(getComboboxButton())
 
       // Verify options are buttons now
-      getComboboxOptions().forEach(option => assertComboboxOption(option, { tag: 'button' }))
+      getComboboxOptions().forEach((option) => assertComboboxOption(option, { tag: 'button' }))
     })
   )
 })
@@ -731,9 +717,7 @@ describe('Composition', () => {
             <ComboboxInput />
             <ComboboxButton>Trigger</ComboboxButton>
             <OpenClosedWrite :open="true">
-              <ComboboxOptions v-slot="data">
-                {{JSON.stringify(data)}}
-              </ComboboxOptions>
+              <ComboboxOptions v-slot="data"> {{JSON.stringify(data)}} </ComboboxOptions>
             </OpenClosedWrite>
           </Combobox>
         `,
@@ -762,9 +746,7 @@ describe('Composition', () => {
             <ComboboxInput />
             <ComboboxButton>Trigger</ComboboxButton>
             <OpenClosedWrite :open="false">
-              <ComboboxOptions v-slot="data">
-                {{JSON.stringify(data)}}
-              </ComboboxOptions>
+              <ComboboxOptions v-slot="data"> {{JSON.stringify(data)}} </ComboboxOptions>
             </OpenClosedWrite>
           </Combobox>
         `,
@@ -870,7 +852,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option, { selected: false }))
+        options.forEach((option) => assertComboboxOption(option, { selected: false }))
 
         // Verify that the first Combobox option is active
         assertActiveComboboxOption(options[0])
@@ -1128,9 +1110,7 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
                 <ComboboxOption value="b">Option B</ComboboxOption>
                 <ComboboxOption value="c">Option C</ComboboxOption>
               </ComboboxOptions>
@@ -1167,12 +1147,8 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
                 <ComboboxOption value="c">Option C</ComboboxOption>
               </ComboboxOptions>
             </Combobox>
@@ -1208,15 +1184,9 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -1386,7 +1356,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[0])
       })
     )
@@ -1516,9 +1486,7 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
                 <ComboboxOption value="b">Option B</ComboboxOption>
                 <ComboboxOption value="c">Option C</ComboboxOption>
               </ComboboxOptions>
@@ -1555,12 +1523,8 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
                 <ComboboxOption value="c">Option C</ComboboxOption>
               </ComboboxOptions>
             </Combobox>
@@ -1596,15 +1560,9 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -1779,7 +1737,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[0])
 
         // Try to tab
@@ -1834,7 +1792,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[0])
 
         // Try to Shift+Tab
@@ -1891,7 +1849,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
 
         // Verify that the first Combobox option is active
         assertActiveComboboxOption(options[0])
@@ -2047,7 +2005,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[0])
 
         // We should be able to go down once
@@ -2073,9 +2031,7 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
                 <ComboboxOption value="b">Option B</ComboboxOption>
                 <ComboboxOption value="c">Option C</ComboboxOption>
               </ComboboxOptions>
@@ -2099,7 +2055,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[1])
 
         // We should be able to go down once
@@ -2117,12 +2073,8 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
                 <ComboboxOption value="c">Option C</ComboboxOption>
               </ComboboxOptions>
             </Combobox>
@@ -2145,7 +2097,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[2])
       })
     )
@@ -2185,7 +2137,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[0])
 
         // We should be able to go right once
@@ -2246,7 +2198,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
 
         // ! ALERT: The LAST option should now be active
         assertActiveComboboxOption(options[2])
@@ -2379,12 +2331,8 @@ describe('Keyboard interactions', () => {
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
                 <ComboboxOption value="a">Option A</ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -2406,7 +2354,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[0])
       })
     )
@@ -2420,12 +2368,8 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
                 <ComboboxOption value="c">Option C</ComboboxOption>
               </ComboboxOptions>
             </Combobox>
@@ -2448,7 +2392,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[2])
 
         // We should not be able to go up (because those are disabled)
@@ -2503,7 +2447,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[2])
 
         // We should be able to go down once
@@ -2565,7 +2509,7 @@ describe('Keyboard interactions', () => {
         // Verify we have Combobox options
         let options = getComboboxOptions()
         expect(options).toHaveLength(3)
-        options.forEach(option => assertComboboxOption(option))
+        options.forEach((option) => assertComboboxOption(option))
         assertActiveComboboxOption(options[2])
 
         // We should be able to go left once
@@ -2630,12 +2574,8 @@ describe('Keyboard interactions', () => {
               <ComboboxOptions>
                 <ComboboxOption value="a">Option A</ComboboxOption>
                 <ComboboxOption value="b">Option B</ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
-                <ComboboxOption disabled value="d">
-                  Option D
-                </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
+                <ComboboxOption disabled value="d"> Option D </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -2669,15 +2609,9 @@ describe('Keyboard interactions', () => {
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
                 <ComboboxOption value="a">Option A</ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
-                <ComboboxOption disabled value="d">
-                  Option D
-                </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
+                <ComboboxOption disabled value="d"> Option D </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -2707,18 +2641,10 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
-                <ComboboxOption disabled value="d">
-                  Option D
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
+                <ComboboxOption disabled value="d"> Option D </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -2786,12 +2712,8 @@ describe('Keyboard interactions', () => {
               <ComboboxOptions>
                 <ComboboxOption value="a">Option A</ComboboxOption>
                 <ComboboxOption value="b">Option B</ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
-                <ComboboxOption disabled value="d">
-                  Option D
-                </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
+                <ComboboxOption disabled value="d"> Option D </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -2825,15 +2747,9 @@ describe('Keyboard interactions', () => {
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
                 <ComboboxOption value="a">Option A</ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
-                <ComboboxOption disabled value="d">
-                  Option D
-                </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
+                <ComboboxOption disabled value="d"> Option D </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -2863,18 +2779,10 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
-                <ComboboxOption disabled value="d">
-                  Option D
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
+                <ComboboxOption disabled value="d"> Option D </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -2940,12 +2848,8 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
                 <ComboboxOption value="c">Option C</ComboboxOption>
                 <ComboboxOption value="d">Option D</ComboboxOption>
               </ComboboxOptions>
@@ -2979,15 +2883,9 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
                 <ComboboxOption value="d">Option D</ComboboxOption>
               </ComboboxOptions>
             </Combobox>
@@ -3018,18 +2916,10 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
-                <ComboboxOption disabled value="d">
-                  Option D
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
+                <ComboboxOption disabled value="d"> Option D </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -3095,12 +2985,8 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
                 <ComboboxOption value="c">Option C</ComboboxOption>
                 <ComboboxOption value="d">Option D</ComboboxOption>
               </ComboboxOptions>
@@ -3134,15 +3020,9 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
                 <ComboboxOption value="d">Option D</ComboboxOption>
               </ComboboxOptions>
             </Combobox>
@@ -3173,18 +3053,10 @@ describe('Keyboard interactions', () => {
               <ComboboxInput />
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
-                <ComboboxOption disabled value="a">
-                  Option A
-                </ComboboxOption>
-                <ComboboxOption disabled value="b">
-                  Option B
-                </ComboboxOption>
-                <ComboboxOption disabled value="c">
-                  Option C
-                </ComboboxOption>
-                <ComboboxOption disabled value="d">
-                  Option D
-                </ComboboxOption>
+                <ComboboxOption disabled value="a"> Option A </ComboboxOption>
+                <ComboboxOption disabled value="b"> Option B </ComboboxOption>
+                <ComboboxOption disabled value="c"> Option C </ComboboxOption>
+                <ComboboxOption disabled value="d"> Option D </ComboboxOption>
               </ComboboxOptions>
             </Combobox>
           `,
@@ -3339,9 +3211,7 @@ describe('Keyboard interactions', () => {
               <ComboboxButton>Trigger</ComboboxButton>
               <ComboboxOptions>
                 <ComboboxOption value="alice">alice</ComboboxOption>
-                <ComboboxOption disabled value="bob">
-                  bob
-                </ComboboxOption>
+                <ComboboxOption disabled value="bob"> bob </ComboboxOption>
                 <ComboboxOption value="charlie">charlie</ComboboxOption>
               </ComboboxOptions>
             </Combobox>
@@ -3507,7 +3377,7 @@ describe('Mouse interactions', () => {
       // Verify we have Combobox options
       let options = getComboboxOptions()
       expect(options).toHaveLength(3)
-      options.forEach(option => assertComboboxOption(option))
+      options.forEach((option) => assertComboboxOption(option))
     })
   )
 
@@ -3912,9 +3782,7 @@ describe('Mouse interactions', () => {
             <ComboboxButton>Trigger</ComboboxButton>
             <ComboboxOptions>
               <ComboboxOption value="alice">alice</ComboboxOption>
-              <ComboboxOption disabled value="bob">
-                bob
-              </ComboboxOption>
+              <ComboboxOption disabled value="bob"> bob </ComboboxOption>
               <ComboboxOption value="charlie">charlie</ComboboxOption>
             </ComboboxOptions>
           </Combobox>
@@ -3942,9 +3810,7 @@ describe('Mouse interactions', () => {
             <ComboboxButton>Trigger</ComboboxButton>
             <ComboboxOptions>
               <ComboboxOption value="alice">alice</ComboboxOption>
-              <ComboboxOption disabled value="bob">
-                bob
-              </ComboboxOption>
+              <ComboboxOption disabled value="bob"> bob </ComboboxOption>
               <ComboboxOption value="charlie">charlie</ComboboxOption>
             </ComboboxOptions>
           </Combobox>
@@ -4021,9 +3887,7 @@ describe('Mouse interactions', () => {
             <ComboboxButton>Trigger</ComboboxButton>
             <ComboboxOptions>
               <ComboboxOption value="alice">alice</ComboboxOption>
-              <ComboboxOption disabled value="bob">
-                bob
-              </ComboboxOption>
+              <ComboboxOption disabled value="bob"> bob </ComboboxOption>
               <ComboboxOption value="charlie">charlie</ComboboxOption>
             </ComboboxOptions>
           </Combobox>
@@ -4103,9 +3967,7 @@ describe('Mouse interactions', () => {
             <ComboboxButton>Trigger</ComboboxButton>
             <ComboboxOptions>
               <ComboboxOption value="alice">alice</ComboboxOption>
-              <ComboboxOption disabled value="bob">
-                bob
-              </ComboboxOption>
+              <ComboboxOption disabled value="bob"> bob </ComboboxOption>
               <ComboboxOption value="charlie">charlie</ComboboxOption>
             </ComboboxOptions>
           </Combobox>
@@ -4185,9 +4047,7 @@ describe('Mouse interactions', () => {
             <ComboboxButton>Trigger</ComboboxButton>
             <ComboboxOptions>
               <ComboboxOption value="alice">alice</ComboboxOption>
-              <ComboboxOption disabled value="bob">
-                bob
-              </ComboboxOption>
+              <ComboboxOption disabled value="bob"> bob </ComboboxOption>
               <ComboboxOption value="charlie">charlie</ComboboxOption>
             </ComboboxOptions>
           </Combobox>

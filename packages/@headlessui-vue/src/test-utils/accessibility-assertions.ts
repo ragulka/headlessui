@@ -91,7 +91,7 @@ export function assertMenuButton(
       expect(button).toHaveAttribute(attributeName, options.attributes[attributeName])
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertMenuButton)
+    if (err instanceof Error) Error.captureStackTrace(err, assertMenuButton)
     throw err
   }
 }
@@ -105,7 +105,7 @@ export function assertMenuButtonLinkedWithMenu(button = getMenuButton(), menu = 
     expect(button).toHaveAttribute('aria-controls', menu.getAttribute('id'))
     expect(menu).toHaveAttribute('aria-labelledby', button.getAttribute('id'))
   } catch (err) {
-    Error.captureStackTrace(err, assertMenuButtonLinkedWithMenu)
+    if (err instanceof Error) Error.captureStackTrace(err, assertMenuButtonLinkedWithMenu)
     throw err
   }
 }
@@ -118,7 +118,7 @@ export function assertMenuLinkedWithMenuItem(item: HTMLElement | null, menu = ge
     // Ensure link between menu & menu item is correct
     expect(menu).toHaveAttribute('aria-activedescendant', item.getAttribute('id'))
   } catch (err) {
-    Error.captureStackTrace(err, assertMenuLinkedWithMenuItem)
+    if (err instanceof Error) Error.captureStackTrace(err, assertMenuLinkedWithMenuItem)
     throw err
   }
 }
@@ -130,7 +130,7 @@ export function assertNoActiveMenuItem(menu = getMenu()) {
     // Ensure we don't have an active menu
     expect(menu).not.toHaveAttribute('aria-activedescendant')
   } catch (err) {
-    Error.captureStackTrace(err, assertNoActiveMenuItem)
+    if (err instanceof Error) Error.captureStackTrace(err, assertNoActiveMenuItem)
     throw err
   }
 }
@@ -183,7 +183,7 @@ export function assertMenu(
         assertNever(options.state)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertMenu)
+    if (err instanceof Error) Error.captureStackTrace(err, assertMenu)
     throw err
   }
 }
@@ -214,7 +214,7 @@ export function assertMenuItem(
       }
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertMenuItem)
+    if (err instanceof Error) Error.captureStackTrace(err, assertMenuItem)
     throw err
   }
 }
@@ -311,7 +311,7 @@ export function assertListbox(
         assertNever(options.state)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertListbox)
+    if (err instanceof Error) Error.captureStackTrace(err, assertListbox)
     throw err
   }
 }
@@ -368,7 +368,7 @@ export function assertListboxButton(
       expect(button).toHaveAttribute(attributeName, options.attributes[attributeName])
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertListboxButton)
+    if (err instanceof Error) Error.captureStackTrace(err, assertListboxButton)
     throw err
   }
 }
@@ -400,7 +400,7 @@ export function assertListboxLabel(
       expect(label).toHaveAttribute(attributeName, options.attributes[attributeName])
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertListboxLabel)
+    if (err instanceof Error) Error.captureStackTrace(err, assertListboxLabel)
     throw err
   }
 }
@@ -417,7 +417,7 @@ export function assertListboxButtonLinkedWithListbox(
     expect(button).toHaveAttribute('aria-controls', listbox.getAttribute('id'))
     expect(listbox).toHaveAttribute('aria-labelledby', button.getAttribute('id'))
   } catch (err) {
-    Error.captureStackTrace(err, assertListboxButtonLinkedWithListbox)
+    if (err instanceof Error) Error.captureStackTrace(err, assertListboxButtonLinkedWithListbox)
     throw err
   }
 }
@@ -432,7 +432,7 @@ export function assertListboxLabelLinkedWithListbox(
 
     expect(listbox).toHaveAttribute('aria-labelledby', label.getAttribute('id'))
   } catch (err) {
-    Error.captureStackTrace(err, assertListboxLabelLinkedWithListbox)
+    if (err instanceof Error) Error.captureStackTrace(err, assertListboxLabelLinkedWithListbox)
     throw err
   }
 }
@@ -448,7 +448,8 @@ export function assertListboxButtonLinkedWithListboxLabel(
     // Ensure link between button & label is correct
     expect(button).toHaveAttribute('aria-labelledby', `${label.id} ${button.id}`)
   } catch (err) {
-    Error.captureStackTrace(err, assertListboxButtonLinkedWithListboxLabel)
+    if (err instanceof Error)
+      Error.captureStackTrace(err, assertListboxButtonLinkedWithListboxLabel)
     throw err
   }
 }
@@ -461,7 +462,7 @@ export function assertActiveListboxOption(item: HTMLElement | null, listbox = ge
     // Ensure link between listbox & listbox item is correct
     expect(listbox).toHaveAttribute('aria-activedescendant', item.getAttribute('id'))
   } catch (err) {
-    Error.captureStackTrace(err, assertActiveListboxOption)
+    if (err instanceof Error) Error.captureStackTrace(err, assertActiveListboxOption)
     throw err
   }
 }
@@ -473,7 +474,7 @@ export function assertNoActiveListboxOption(listbox = getListbox()) {
     // Ensure we don't have an active listbox
     expect(listbox).not.toHaveAttribute('aria-activedescendant')
   } catch (err) {
-    Error.captureStackTrace(err, assertNoActiveListboxOption)
+    if (err instanceof Error) Error.captureStackTrace(err, assertNoActiveListboxOption)
     throw err
   }
 }
@@ -482,7 +483,7 @@ export function assertNoSelectedListboxOption(items = getListboxOptions()) {
   try {
     for (let item of items) expect(item).not.toHaveAttribute('aria-selected')
   } catch (err) {
-    Error.captureStackTrace(err, assertNoSelectedListboxOption)
+    if (err instanceof Error) Error.captureStackTrace(err, assertNoSelectedListboxOption)
     throw err
   }
 }
@@ -530,7 +531,7 @@ export function assertListboxOption(
       }
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertListboxOption)
+    if (err instanceof Error) Error.captureStackTrace(err, assertListboxOption)
     throw err
   }
 }
@@ -913,7 +914,7 @@ export function assertSwitch(
         assertNever(options.state)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertSwitch)
+    if (err instanceof Error) Error.captureStackTrace(err, assertSwitch)
     throw err
   }
 }
@@ -994,7 +995,7 @@ export function assertDisclosureButton(
       expect(button).toHaveAttribute(attributeName, options.attributes[attributeName])
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertDisclosureButton)
+    if (err instanceof Error) Error.captureStackTrace(err, assertDisclosureButton)
     throw err
   }
 }
@@ -1041,7 +1042,7 @@ export function assertDisclosurePanel(
         assertNever(options.state)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertDisclosurePanel)
+    if (err instanceof Error) Error.captureStackTrace(err, assertDisclosurePanel)
     throw err
   }
 }
@@ -1126,7 +1127,7 @@ export function assertPopoverButton(
       expect(button).toHaveAttribute(attributeName, options.attributes[attributeName])
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertPopoverButton)
+    if (err instanceof Error) Error.captureStackTrace(err, assertPopoverButton)
     throw err
   }
 }
@@ -1173,7 +1174,7 @@ export function assertPopoverPanel(
         assertNever(options.state)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertPopoverPanel)
+    if (err instanceof Error) Error.captureStackTrace(err, assertPopoverPanel)
     throw err
   }
 }
@@ -1185,7 +1186,7 @@ export function assertLabelValue(element: HTMLElement | null, value: string) {
 
   if (element.hasAttribute('aria-labelledby')) {
     let ids = element.getAttribute('aria-labelledby')!.split(' ')
-    expect(ids.map(id => document.getElementById(id)?.textContent).join(' ')).toEqual(value)
+    expect(ids.map((id) => document.getElementById(id)?.textContent).join(' ')).toEqual(value)
     return
   }
 
@@ -1300,7 +1301,7 @@ export function assertDialog(
         assertNever(options.state)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertDialog)
+    if (err instanceof Error) Error.captureStackTrace(err, assertDialog)
     throw err
   }
 }
@@ -1356,7 +1357,7 @@ export function assertDialogTitle(
         assertNever(options.state)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertDialogTitle)
+    if (err instanceof Error) Error.captureStackTrace(err, assertDialogTitle)
     throw err
   }
 }
@@ -1412,7 +1413,7 @@ export function assertDialogDescription(
         assertNever(options.state)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertDialogDescription)
+    if (err instanceof Error) Error.captureStackTrace(err, assertDialogDescription)
     throw err
   }
 }
@@ -1459,7 +1460,7 @@ export function assertDialogOverlay(
         assertNever(options.state)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertDialogOverlay)
+    if (err instanceof Error) Error.captureStackTrace(err, assertDialogOverlay)
     throw err
   }
 }
@@ -1501,7 +1502,7 @@ export function assertRadioGroupLabel(
       expect(label).toHaveAttribute(attributeName, options.attributes[attributeName])
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertRadioGroupLabel)
+    if (err instanceof Error) Error.captureStackTrace(err, assertRadioGroupLabel)
     throw err
   }
 }
@@ -1541,7 +1542,7 @@ export function assertTabs(
     expect(list).toHaveAttribute('aria-orientation', orientation)
 
     let activeTab = Array.from(list.querySelectorAll('[id^="headlessui-tabs-tab-"]'))[active]
-    let activePanel = panels.find(panel => panel.id === activeTab.getAttribute('aria-controls'))
+    let activePanel = panels.find((panel) => panel.id === activeTab.getAttribute('aria-controls'))
 
     for (let tab of tabs) {
       expect(tab).toHaveAttribute('id')
@@ -1583,7 +1584,7 @@ export function assertTabs(
       }
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertTabs)
+    if (err instanceof Error) Error.captureStackTrace(err, assertTabs)
     throw err
   }
 }
@@ -1603,7 +1604,7 @@ export function assertActiveElement(element: HTMLElement | null) {
       expect(document.activeElement?.outerHTML).toBe(element.outerHTML)
     }
   } catch (err) {
-    Error.captureStackTrace(err, assertActiveElement)
+    if (err instanceof Error) Error.captureStackTrace(err, assertActiveElement)
     throw err
   }
 }
@@ -1613,7 +1614,7 @@ export function assertContainsActiveElement(element: HTMLElement | null) {
     if (element === null) return expect(element).not.toBe(null)
     expect(element.contains(document.activeElement)).toBe(true)
   } catch (err) {
-    Error.captureStackTrace(err, assertContainsActiveElement)
+    if (err instanceof Error) Error.captureStackTrace(err, assertContainsActiveElement)
     throw err
   }
 }
@@ -1627,7 +1628,7 @@ export function assertHidden(element: HTMLElement | null) {
     expect(element).toHaveAttribute('hidden')
     expect(element).toHaveStyle({ display: 'none' })
   } catch (err) {
-    Error.captureStackTrace(err, assertHidden)
+    if (err instanceof Error) Error.captureStackTrace(err, assertHidden)
     throw err
   }
 }
@@ -1639,7 +1640,7 @@ export function assertVisible(element: HTMLElement | null) {
     expect(element).not.toHaveAttribute('hidden')
     expect(element).not.toHaveStyle({ display: 'none' })
   } catch (err) {
-    Error.captureStackTrace(err, assertVisible)
+    if (err instanceof Error) Error.captureStackTrace(err, assertVisible)
     throw err
   }
 }
@@ -1652,7 +1653,7 @@ export function assertFocusable(element: HTMLElement | null) {
 
     expect(isFocusableElement(element, FocusableMode.Strict)).toBe(true)
   } catch (err) {
-    Error.captureStackTrace(err, assertFocusable)
+    if (err instanceof Error) Error.captureStackTrace(err, assertFocusable)
     throw err
   }
 }
@@ -1663,7 +1664,7 @@ export function assertNotFocusable(element: HTMLElement | null) {
 
     expect(isFocusableElement(element, FocusableMode.Strict)).toBe(false)
   } catch (err) {
-    Error.captureStackTrace(err, assertNotFocusable)
+    if (err instanceof Error) Error.captureStackTrace(err, assertNotFocusable)
     throw err
   }
 }
