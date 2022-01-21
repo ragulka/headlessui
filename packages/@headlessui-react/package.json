@@ -34,7 +34,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "../../scripts/build.sh --external:react --external:react-dom",
-    "watch": "../../scripts/build.sh --external:react --external:react-dom --watch",
+    "watch": "../../scripts/watch.sh --external:react --external:react-dom",
     "test": "../../scripts/test.sh",
     "lint": "../../scripts/lint.sh"
   },
