@@ -816,12 +816,6 @@ function Option<
     dispatch({ type: ActionTypes.GoToOption, focus: Focus.Specific, id })
   }, [disabled, active, id, dispatch])
 
-  let handleLeave = useCallback(() => {
-    if (disabled) return
-    if (!active) return
-    dispatch({ type: ActionTypes.GoToOption, focus: Focus.Nothing })
-  }, [disabled, active, dispatch])
-
   let slot = useMemo<OptionRenderPropArg>(
     () => ({ active, selected, disabled }),
     [active, selected, disabled]
