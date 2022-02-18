@@ -217,6 +217,7 @@ function TransitionChild<TTag extends ElementType = typeof DEFAULT_TRANSITION_CH
 
   let { show, appear, initial } = useTransitionContext()
   let { register, unregister } = useParentNesting()
+  let prevShow = useRef(show)
 
   let id = useId()
 
@@ -281,6 +282,7 @@ function TransitionChild<TTag extends ElementType = typeof DEFAULT_TRANSITION_CH
     let node = container.current
     if (!node) return
     if (skip) return
+    if (show === prevShow.current) return
 
     isTransitioning.current = true
 
@@ -335,6 +337,10 @@ function TransitionChild<TTag extends ElementType = typeof DEFAULT_TRANSITION_CH
     leaveFromClasses,
     leaveToClasses,
   ])
+
+  useIsoMorphicEffect(() => {
+    prevShow.current = show
+  }, [show])
 
   let propsWeControl = { ref: container }
   let passthroughProps = rest
