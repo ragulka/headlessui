@@ -131,6 +131,7 @@ export let Combobox = defineComponent({
       >,
       default: undefined,
     },
+    defaultToFirstOption: { type: [Boolean], default: true },
     name: { type: String },
     nullable: { type: Boolean, default: false },
     multiple: { type: [Boolean], default: false },
@@ -246,7 +247,7 @@ export let Combobox = defineComponent({
         activeOptionIndex.value = null
       },
       openCombobox() {
-        defaultToFirstOption.value = true
+        defaultToFirstOption.value = props.defaultToFirstOption
 
         if (props.disabled) return
         if (comboboxState.value === ComboboxStates.Open) return
@@ -288,7 +289,7 @@ export let Combobox = defineComponent({
         // It's possible that the activeOptionIndex is set to `null` internally, but
         // this means that we will fallback to the first non-disabled option by default.
         // We have to take this into account.
-        if (adjustedState.activeOptionIndex === null) {
+        if (adjustedState.activeOptionIndex === null && props.defaultToFirstOption) {
           let localActiveOptionIndex = adjustedState.options.findIndex(
             (option) => !option.dataRef.disabled
           )
@@ -482,6 +483,7 @@ export let Combobox = defineComponent({
             ...omit(theirProps, [
               'modelValue',
               'defaultValue',
+              'defaultToFirstOption',
               'nullable',
               'multiple',
               'onUpdate:modelValue',
