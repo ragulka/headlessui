@@ -3459,6 +3459,46 @@ describe('Keyboard interactions', () => {
           assertActiveComboboxOption(options[1])
         })
       )
+
+      it(
+        'should be possible to go to the first item if no value is set and first option is not active by default',
+        suppressConsoleLogs(async () => {
+          renderTemplate({
+            template: html`
+              <Combobox v-model="value" :default-to-first-option="false" as="div">
+                <ComboboxInput />
+                <ComboboxButton>Trigger</ComboboxButton>
+                <ComboboxOptions>
+                  <ComboboxOption value="a">Option A</ComboboxOption>
+                  <ComboboxOption value="b">Option B</ComboboxOption>
+                  <ComboboxOption value="c">Option C</ComboboxOption>
+                </ComboboxOptions>
+              </Combobox>
+            `,
+            setup: () => ({ value: ref(null) }),
+          })
+
+          assertComboboxButton({
+            state: ComboboxState.InvisibleUnmounted,
+            attributes: { id: 'headlessui-combobox-button-2' },
+          })
+          assertComboboxList({ state: ComboboxState.InvisibleUnmounted })
+
+          // Open combobox
+          await click(getComboboxButton())
+
+          let options = getComboboxOptions()
+
+          // Verify that we have no active option
+          assertNoActiveComboboxOption()
+
+          // Go down once
+          await press(Keys.ArrowDown)
+
+          // We should be on the next item
+          assertActiveComboboxOption(options[0])
+        })
+      )
     })
 
     describe('`ArrowUp` key', () => {
