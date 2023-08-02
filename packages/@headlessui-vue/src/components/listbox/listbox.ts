@@ -35,6 +35,7 @@ import { Hidden, Features as HiddenFeatures } from '../../internal/hidden'
 import { objectToFormEntries } from '../../utils/form'
 import { useControllable } from '../../hooks/use-controllable'
 import { useTrackedPointer } from '../../hooks/use-tracked-pointer'
+import { useTextValue } from '../../hooks/use-text-value'
 
 function defaultComparator<T>(a: T, z: T): boolean {
   return a === z
@@ -531,9 +532,7 @@ export let ListboxButton = defineComponent({
         type: type.value,
         'aria-haspopup': 'listbox',
         'aria-controls': dom(api.optionsRef)?.id,
-        'aria-expanded': api.disabled.value
-          ? undefined
-          : api.listboxState.value === ListboxStates.Open,
+        'aria-expanded': api.listboxState.value === ListboxStates.Open,
         'aria-labelledby': api.labelRef.value ? [dom(api.labelRef)?.id, id].join(' ') : undefined,
         disabled: api.disabled.value === true ? true : undefined,
         onKeydown: handleKeyDown,
@@ -731,16 +730,15 @@ export let ListboxOption = defineComponent({
       })
     })
 
+    let getTextValue = useTextValue(internalOptionRef)
     let dataRef = computed<ListboxOptionData>(() => ({
       disabled: props.disabled,
       value: props.value,
-      textValue: '',
+      get textValue() {
+        return getTextValue()
+      },
       domRef: internalOptionRef,
     }))
-    onMounted(() => {
-      let textValue = dom(internalOptionRef)?.textContent?.toLowerCase().trim()
-      if (textValue !== undefined) dataRef.value.textValue = textValue
-    })
 
     onMounted(() => api.registerOption(props.id, dataRef))
     onUnmounted(() => api.unregisterOption(props.id))

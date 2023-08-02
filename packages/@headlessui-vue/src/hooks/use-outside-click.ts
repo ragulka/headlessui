@@ -2,6 +2,7 @@ import { computed, Ref, ComputedRef, ref } from 'vue'
 import { FocusableMode, isFocusableElement } from '../utils/focus-management'
 import { dom } from '../utils/dom'
 import { useDocumentEvent } from './use-document-event'
+import { useWindowEvent } from './use-window-event'
 
 type Container = Ref<HTMLElement | null> | HTMLElement | null
 type ContainerCollection = Container[] | Set<Container>
@@ -9,10 +10,10 @@ type ContainerInput = Container | ContainerCollection
 
 export function useOutsideClick(
   containers: ContainerInput | (() => ContainerInput),
-  cb: (event: MouseEvent | PointerEvent | FocusEvent, target: HTMLElement) => void,
+  cb: (event: MouseEvent | PointerEvent | FocusEvent | TouchEvent, target: HTMLElement) => void,
   enabled: ComputedRef<boolean> = computed(() => true)
 ) {
-  function handleOutsideClick<E extends MouseEvent | PointerEvent | FocusEvent>(
+  function handleOutsideClick<E extends MouseEvent | PointerEvent | FocusEvent | TouchEvent>(
     event: E,
     resolveTarget: (event: E) => HTMLElement | null
   ) {
@@ -85,6 +86,16 @@ export function useOutsideClick(
   let initialClickTarget = ref<EventTarget | null>(null)
 
   useDocumentEvent(
+    'pointerdown',
+    (event) => {
+      if (enabled.value) {
+        initialClickTarget.value = event.composedPath?.()?.[0] || event.target
+      }
+    },
+    true
+  )
+
+  useDocumentEvent(
     'mousedown',
     (event) => {
       if (enabled.value) {
@@ -115,6 +126,24 @@ export function useOutsideClick(
     true
   )
 
+  useDocumentEvent(
+    'touchend',
+    (event) => {
+      return handleOutsideClick(event, () => {
+        if (event.target instanceof HTMLElement) {
+          return event.target
+        }
+        return null
+      })
+    },
+
+    // We will use the `capture` phase so that layers in between with `event.stopPropagation()`
+    // don't "cancel" this outside click check. E.g.: A `Menu` inside a `DialogPanel` if the `Menu`
+    // is open, and you click outside of it in the `DialogPanel` the `Menu` should close. However,
+    // the `DialogPanel` has a `onClick(e) { e.stopPropagation() }` which would cancel this.
+    true
+  )
+
   // When content inside an iframe is clicked `window` will receive a blur event
   // This can happen when an iframe _inside_ a window is clicked
   // Or, if headless UI is *in* the iframe, when a content in a window containing that iframe is clicked
@@ -122,14 +151,15 @@ export function useOutsideClick(
   // In this case we care only about the first case so we check to see if the active element is the iframe
   // If so this was because of a click, focus, or other interaction with the child iframe
   // and we can consider it an "outside click"
-  useDocumentEvent(
+  useWindowEvent(
     'blur',
-    (event) =>
-      handleOutsideClick(event, () =>
-        window.document.activeElement instanceof HTMLIFrameElement
+    (event) => {
+      return handleOutsideClick(event, () => {
+        return window.document.activeElement instanceof HTMLIFrameElement
           ? window.document.activeElement
           : null
-      ),
+      })
+    },
     true
   )
 }

@@ -48,6 +48,7 @@ import { useEvent } from '../../hooks/use-event'
 import { useControllable } from '../../hooks/use-controllable'
 import { useLatestValue } from '../../hooks/use-latest-value'
 import { useTrackedPointer } from '../../hooks/use-tracked-pointer'
+import { useTextValue } from '../../hooks/use-text-value'
 
 enum ListboxStates {
   Open,
@@ -679,7 +680,7 @@ function ButtonFn<TTag extends ElementType = typeof DEFAULT_BUTTON_TAG>(
     type: useResolveButtonType(props, data.buttonRef),
     'aria-haspopup': 'listbox',
     'aria-controls': data.optionsRef.current?.id,
-    'aria-expanded': data.disabled ? undefined : data.listboxState === ListboxStates.Open,
+    'aria-expanded': data.listboxState === ListboxStates.Open,
     'aria-labelledby': labelledby,
     disabled: data.disabled,
     onKeyDown: handleKeyDown,
@@ -934,12 +935,13 @@ function OptionFn<
 
   let selected = data.isSelected(value)
   let internalOptionRef = useRef<HTMLLIElement | null>(null)
+  let getTextValue = useTextValue(internalOptionRef)
   let bag = useLatestValue<ListboxOptionDataRef<TType>['current']>({
     disabled,
     value,
     domRef: internalOptionRef,
     get textValue() {
-      return internalOptionRef.current?.textContent?.toLowerCase()
+      return getTextValue()
     },
   })
   let optionRef = useSyncRefs(ref, internalOptionRef)

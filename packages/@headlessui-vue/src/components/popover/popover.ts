@@ -37,6 +37,8 @@ import { useEventListener } from '../../hooks/use-event-listener'
 import { Hidden, Features as HiddenFeatures } from '../../internal/hidden'
 import { useTabDirection, Direction as TabDirection } from '../../hooks/use-tab-direction'
 import { microTask } from '../../utils/micro-task'
+import { useRootContainers } from '../../hooks/use-root-containers'
+import { useNestedPortals } from '../../components/portal/portal'
 
 enum PopoverStates {
   Open,
@@ -204,6 +206,12 @@ export let Popover = defineComponent({
     let groupContext = usePopoverGroupContext()
     let registerPopover = groupContext?.registerPopover
 
+    let [portals, PortalWrapper] = useNestedPortals()
+    let root = useRootContainers({
+      portals,
+      defaultContainers: [button, panel],
+    })
+
     function isFocusWithinPopoverGroup() {
       return (
         groupContext?.isFocusWithinPopoverGroup() ??
@@ -220,13 +228,15 @@ export let Popover = defineComponent({
       ownerDocument.value?.defaultView,
       'focus',
       (event) => {
+        if (event.target === window) return
+        if (!(event.target instanceof HTMLElement)) return
         if (popoverState.value !== PopoverStates.Open) return
         if (isFocusWithinPopoverGroup()) return
         if (!button) return
         if (!panel) return
-        if (event.target === window) return
-        if (dom(api.beforePanelSentinel)?.contains(event.target as HTMLElement)) return
-        if (dom(api.afterPanelSentinel)?.contains(event.target as HTMLElement)) return
+        if (root.contains(event.target)) return
+        if (dom(api.beforePanelSentinel)?.contains(event.target)) return
+        if (dom(api.afterPanelSentinel)?.contains(event.target)) return
 
         api.closePopover()
       },
@@ -235,7 +245,7 @@ export let Popover = defineComponent({
 
     // Handle outside click
     useOutsideClick(
-      [button, panel],
+      root.resolveContainers,
       (event, target) => {
         api.closePopover()
 
@@ -249,14 +259,16 @@ export let Popover = defineComponent({
 
     return () => {
       let slot = { open: popoverState.value === PopoverStates.Open, close: api.close }
-      return render({
-        theirProps: props,
-        ourProps: { ref: internalPopoverRef },
-        slot,
-        slots,
-        attrs,
-        name: 'Popover',
-      })
+      return h(PortalWrapper, {}, () =>
+        render({
+          theirProps: { ...props, ...attrs },
+          ourProps: { ref: internalPopoverRef },
+          slot,
+          slots,
+          attrs,
+          name: 'Popover',
+        })
+      )
     }
   },
 })
@@ -380,6 +392,37 @@ export let PopoverButton = defineComponent({
       event.stopPropagation()
     }
 
+    let direction = useTabDirection()
+    function handleFocus() {
+      let el = dom(api.panel) as HTMLElement
+      if (!el) return
+
+      function run() {
+        let result = match(direction.value, {
+          [TabDirection.Forwards]: () => focusIn(el, Focus.First),
+          [TabDirection.Backwards]: () => focusIn(el, Focus.Last),
+        })
+
+        if (result === FocusResult.Error) {
+          focusIn(
+            getFocusableElements().filter((el) => el.dataset.headlessuiFocusGuard !== 'true'),
+            match(direction.value, {
+              [TabDirection.Forwards]: Focus.Next,
+              [TabDirection.Backwards]: Focus.Previous,
+            }),
+            { relativeTo: dom(api.button) }
+          )
+        }
+      }
+
+      // TODO: Cleanup once we are using real browser tests
+      if (process.env.NODE_ENV === 'test') {
+        microTask(run)
+      } else {
+        run()
+      }
+    }
+
     return () => {
       let visible = api.popoverState.value === PopoverStates.Open
       let slot = { open: visible }
@@ -395,9 +438,7 @@ export let PopoverButton = defineComponent({
             ref: elementRef,
             id,
             type: type.value,
-            'aria-expanded': props.disabled
-              ? undefined
-              : api.popoverState.value === PopoverStates.Open,
+            'aria-expanded': api.popoverState.value === PopoverStates.Open,
             'aria-controls': dom(api.panel) ? api.panelId.value : undefined,
             disabled: props.disabled ? true : undefined,
             onKeydown: handleKeyDown,
@@ -405,37 +446,6 @@ export let PopoverButton = defineComponent({
             onClick: handleClick,
             onMousedown: handleMouseDown,
           }
-
-      let direction = useTabDirection()
-      function handleFocus() {
-        let el = dom(api.panel) as HTMLElement
-        if (!el) return
-
-        function run() {
-          let result = match(direction.value, {
-            [TabDirection.Forwards]: () => focusIn(el, Focus.First),
-            [TabDirection.Backwards]: () => focusIn(el, Focus.Last),
-          })
-
-          if (result === FocusResult.Error) {
-            focusIn(
-              getFocusableElements().filter((el) => el.dataset.headlessuiFocusGuard !== 'true'),
-              match(direction.value, {
-                [TabDirection.Forwards]: Focus.Next,
-                [TabDirection.Backwards]: Focus.Previous,
-              }),
-              { relativeTo: dom(api.button) }
-            )
-          }
-        }
-
-        // TODO: Cleanup once we are using real browser tests
-        if (process.env.NODE_ENV === 'test') {
-          microTask(run)
-        } else {
-          run()
-        }
-      }
 
       return h(Fragment, [
         render({

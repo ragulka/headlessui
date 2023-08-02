@@ -54,6 +54,8 @@ import { useTabDirection, Direction as TabDirection } from '../../hooks/use-tab-
 import { microTask } from '../../utils/micro-task'
 import { useLatestValue } from '../../hooks/use-latest-value'
 import { useIsoMorphicEffect } from '../../hooks/use-iso-morphic-effect'
+import { useRootContainers } from '../../hooks/use-root-containers'
+import { useNestedPortals } from '../../components/portal/portal'
 
 type MouseEvent<T> = Parameters<MouseEventHandler<T>>[0]
 
@@ -63,6 +65,7 @@ enum PopoverStates {
 }
 
 interface StateDefinition {
+  __demoMode: boolean
   popoverState: PopoverStates
 
   buttons: MutableRefObject<Symbol[]>
@@ -100,13 +103,22 @@ let reducers: {
     action: Extract<Actions, { type: P }>
   ) => StateDefinition
 } = {
-  [ActionTypes.TogglePopover]: (state) => ({
-    ...state,
-    popoverState: match(state.popoverState, {
-      [PopoverStates.Open]: PopoverStates.Closed,
-      [PopoverStates.Closed]: PopoverStates.Open,
-    }),
-  }),
+  [ActionTypes.TogglePopover]: (state) => {
+    let nextState = {
+      ...state,
+      popoverState: match(state.popoverState, {
+        [PopoverStates.Open]: PopoverStates.Closed,
+        [PopoverStates.Closed]: PopoverStates.Open,
+      }),
+    }
+
+    /* We can turn off demo mode once we re-open the `Popover` */
+    if (nextState.popoverState === PopoverStates.Open) {
+      nextState.__demoMode = false
+    }
+
+    return nextState
+  },
   [ActionTypes.ClosePopover](state) {
     if (state.popoverState === PopoverStates.Closed) return state
     return { ...state, popoverState: PopoverStates.Closed }
@@ -198,12 +210,20 @@ interface PopoverRenderPropArg {
   ): void
 }
 
-export type PopoverProps<TTag extends ElementType> = Props<TTag, PopoverRenderPropArg>
+export type PopoverProps<TTag extends ElementType> = Props<
+  TTag,
+  PopoverRenderPropArg,
+  never,
+  {
+    __demoMode?: boolean
+  }
+>
 
 function PopoverFn<TTag extends ElementType = typeof DEFAULT_POPOVER_TAG>(
   props: PopoverProps<TTag>,
   ref: Ref<HTMLElement>
 ) {
+  let { __demoMode = false, ...theirProps } = props
   let internalPopoverRef = useRef<HTMLElement | null>(null)
   let popoverRef = useSyncRefs(
     ref,
@@ -214,7 +234,8 @@ function PopoverFn<TTag extends ElementType = typeof DEFAULT_POPOVER_TAG>(
 
   let buttons = useRef([])
   let reducerBag = useReducer(stateReducer, {
-    popoverState: PopoverStates.Closed,
+    __demoMode,
+    popoverState: __demoMode ? PopoverStates.Open : PopoverStates.Closed,
     buttons,
     button: null,
     buttonId: null,
@@ -290,18 +311,26 @@ function PopoverFn<TTag extends ElementType = typeof DEFAULT_POPOVER_TAG>(
 
   useEffect(() => registerPopover?.(registerBag), [registerPopover, registerBag])
 
+  let [portals, PortalWrapper] = useNestedPortals()
+  let root = useRootContainers({
+    portals,
+    defaultContainers: [button, panel],
+  })
+
   // Handle focus out
   useEventListener(
     ownerDocument?.defaultView,
     'focus',
     (event) => {
+      if (event.target === window) return
+      if (!(event.target instanceof HTMLElement)) return
       if (popoverState !== PopoverStates.Open) return
       if (isFocusWithinPopoverGroup()) return
       if (!button) return
       if (!panel) return
-      if (event.target === window) return
-      if (beforePanelSentinel.current?.contains?.(event.target as HTMLElement)) return
-      if (afterPanelSentinel.current?.contains?.(event.target as HTMLElement)) return
+      if (root.contains(event.target)) return
+      if (beforePanelSentinel.current?.contains?.(event.target)) return
+      if (afterPanelSentinel.current?.contains?.(event.target)) return
 
       dispatch({ type: ActionTypes.ClosePopover })
     },
@@ -310,7 +339,7 @@ function PopoverFn<TTag extends ElementType = typeof DEFAULT_POPOVER_TAG>(
 
   // Handle outside click
   useOutsideClick(
-    [button, panel],
+    root.resolveContainers,
     (event, target) => {
       dispatch({ type: ActionTypes.ClosePopover })
 
@@ -354,7 +383,6 @@ function PopoverFn<TTag extends ElementType = typeof DEFAULT_POPOVER_TAG>(
     [popoverState, close]
   )
 
-  let theirProps = props
   let ourProps = { ref: popoverRef }
 
   return (
@@ -367,13 +395,16 @@ function PopoverFn<TTag extends ElementType = typeof DEFAULT_POPOVER_TAG>(
               [PopoverStates.Closed]: State.Closed,
             })}
           >
-            {render({
-              ourProps,
-              theirProps,
-              slot,
-              defaultTag: DEFAULT_POPOVER_TAG,
-              name: 'Popover',
-            })}
+            <PortalWrapper>
+              {render({
+                ourProps,
+                theirProps,
+                slot,
+                defaultTag: DEFAULT_POPOVER_TAG,
+                name: 'Popover',
+              })}
+              <root.MainTreeNode />
+            </PortalWrapper>
           </OpenClosedProvider>
         </PopoverAPIContext.Provider>
       </PopoverContext.Provider>
@@ -560,7 +591,7 @@ function ButtonFn<TTag extends ElementType = typeof DEFAULT_BUTTON_TAG>(
         ref: buttonRef,
         id: state.buttonId,
         type,
-        'aria-expanded': props.disabled ? undefined : state.popoverState === PopoverStates.Open,
+        'aria-expanded': state.popoverState === PopoverStates.Open,
         'aria-controls': state.panel ? state.panelId : undefined,
         onKeyDown: handleKeyDown,
         onKeyUp: handleKeyUp,
@@ -771,6 +802,7 @@ function PanelFn<TTag extends ElementType = typeof DEFAULT_PANEL_TAG>(
 
   // Move focus within panel
   useEffect(() => {
+    if (state.__demoMode) return
     if (!focus) return
     if (state.popoverState !== PopoverStates.Open) return
     if (!internalPanelRef.current) return
@@ -779,7 +811,7 @@ function PanelFn<TTag extends ElementType = typeof DEFAULT_PANEL_TAG>(
     if (internalPanelRef.current.contains(activeElement)) return // Already focused within Dialog
 
     focusIn(internalPanelRef.current, Focus.First)
-  }, [focus, internalPanelRef, state.popoverState])
+  }, [state.__demoMode, focus, internalPanelRef, state.popoverState])
 
   let slot = useMemo<PanelRenderPropArg>(
     () => ({ open: state.popoverState === PopoverStates.Open, close }),

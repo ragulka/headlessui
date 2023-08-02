@@ -32,6 +32,7 @@ import {
 } from '../../utils/focus-management'
 import { useOutsideClick } from '../../hooks/use-outside-click'
 import { useTrackedPointer } from '../../hooks/use-tracked-pointer'
+import { useTextValue } from '../../hooks/use-text-value'
 
 enum MenuStates {
   Open,
@@ -319,7 +320,7 @@ export let MenuButton = defineComponent({
         type: type.value,
         'aria-haspopup': 'menu',
         'aria-controls': dom(api.itemsRef)?.id,
-        'aria-expanded': props.disabled ? undefined : api.menuState.value === MenuStates.Open,
+        'aria-expanded': api.menuState.value === MenuStates.Open,
         onKeydown: handleKeyDown,
         onKeyup: handleKeyUp,
         onClick: handleClick,
@@ -511,15 +512,14 @@ export let MenuItem = defineComponent({
         : false
     })
 
+    let getTextValue = useTextValue(internalItemRef)
     let dataRef = computed<MenuItemData>(() => ({
       disabled: props.disabled,
-      textValue: '',
+      get textValue() {
+        return getTextValue()
+      },
       domRef: internalItemRef,
     }))
-    onMounted(() => {
-      let textValue = dom(internalItemRef)?.textContent?.toLowerCase().trim()
-      if (textValue !== undefined) dataRef.value.textValue = textValue
-    })
 
     onMounted(() => api.registerItem(props.id, dataRef))
     onUnmounted(() => api.unregisterItem(props.id))

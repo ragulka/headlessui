@@ -721,6 +721,73 @@ describe('Rendering', () => {
         expect(getComboboxInput()).toHaveValue('charlie - closed')
       })
     )
+
+    it(
+      'should move the caret to the end of the input when syncing the value',
+      suppressConsoleLogs(async () => {
+        renderTemplate({
+          template: html`
+            <Combobox>
+              <ComboboxInput />
+              <ComboboxButton />
+
+              <ComboboxOptions>
+                <ComboboxOption value="alice">alice</ComboboxOption>
+                <ComboboxOption value="bob">bob</ComboboxOption>
+                <ComboboxOption value="charlie">charlie</ComboboxOption>
+              </ComboboxOptions>
+            </Combobox>
+          `,
+        })
+
+        await nextFrame()
+
+        // Open the combobox
+        await click(getComboboxButton())
+
+        // Choose charlie
+        await click(getComboboxOptions()[2])
+        expect(getComboboxInput()).toHaveValue('charlie')
+
+        // Ensure the selection is in the correct position
+        expect(getComboboxInput()?.selectionStart).toBe('charlie'.length)
+        expect(getComboboxInput()?.selectionEnd).toBe('charlie'.length)
+      })
+    )
+
+    // Skipped because JSDOM doesn't implement this properly: https://github.com/jsdom/jsdom/issues/3524
+    xit(
+      'should not move the caret to the end of the input when syncing the value if a custom selection is made',
+      suppressConsoleLogs(async () => {
+        renderTemplate({
+          template: html`
+            <Combobox>
+              <ComboboxInput />
+              <ComboboxButton />
+
+              <ComboboxOptions>
+                <ComboboxOption value="alice">alice</ComboboxOption>
+                <ComboboxOption value="bob">bob</ComboboxOption>
+                <ComboboxOption value="charlie">charlie</ComboboxOption>
+              </ComboboxOptions>
+            </Combobox>
+          `,
+        })
+
+        await nextFrame()
+
+        // Open the combobox
+        await click(getComboboxButton())
+
+        // Choose charlie
+        await click(getComboboxOptions()[2])
+        expect(getComboboxInput()).toHaveValue('charlie')
+
+        // Ensure the selection is in the correct position
+        expect(getComboboxInput()?.selectionStart).toBe(0)
+        expect(getComboboxInput()?.selectionEnd).toBe('charlie'.length)
+      })
+    )
   })
 
   describe('ComboboxLabel', () => {
@@ -1523,6 +1590,33 @@ describe('Rendering', () => {
       expect(handleChange).toHaveBeenNthCalledWith(2, 'bob')
     })
   })
+
+  it(
+    'should be possible to use a custom component using the `as` prop without crashing',
+    suppressConsoleLogs(async () => {
+      let CustomComponent = defineComponent({
+        template: html`<button><slot /></button>`,
+      })
+
+      renderTemplate({
+        template: html`
+          <Combobox name="assignee">
+            <ComboboxInput />
+            <ComboboxButton />
+            <ComboboxOptions>
+              <ComboboxOption :as="CustomComponent" value="alice">Alice</RadioGroupOption>
+              <ComboboxOption :as="CustomComponent" value="bob">Bob</RadioGroupOption>
+              <ComboboxOption :as="CustomComponent" value="charlie">Charlie</RadioGroupOption>
+            </ComboboxOptions>
+          </Combobox>
+        `,
+        setup: () => ({ CustomComponent }),
+      })
+
+      // Open combobox
+      await click(getComboboxButton())
+    })
+  )
 })
 
 describe('Rendering composition', () => {
@@ -2816,6 +2910,55 @@ describe('Keyboard interactions', () => {
                 </Combobox>
 
                 <button>Submit</button>
+              </form>
+            `,
+            setup() {
+              let value = ref('b')
+              return {
+                value,
+                handleKeyUp(event: KeyboardEvent) {
+                  // JSDom doesn't automatically submit the form but if we can
+                  // catch an `Enter` event, we can assume it was a submit.
+                  if (event.key === 'Enter') (event.currentTarget as HTMLFormElement).submit()
+                },
+                handleSubmit(event: SubmitEvent) {
+                  event.preventDefault()
+                  submits([...new FormData(event.currentTarget as HTMLFormElement).entries()])
+                },
+              }
+            },
+          })
+
+          // Focus the input field
+          getComboboxInput()?.focus()
+          assertActiveElement(getComboboxInput())
+
+          // Press enter (which should submit the form)
+          await press(Keys.Enter)
+
+          // Verify the form was submitted
+          expect(submits).toHaveBeenCalledTimes(1)
+          expect(submits).toHaveBeenCalledWith([['option', 'b']])
+        })
+      )
+
+      it(
+        'should submit the form on `Enter` (when no submit button was found)',
+        suppressConsoleLogs(async () => {
+          let submits = jest.fn()
+
+          renderTemplate({
+            template: html`
+              <form @submit="handleSubmit" @keyup="handleKeyUp">
+                <Combobox v-model="value" name="option">
+                  <ComboboxInput />
+                  <ComboboxButton>Trigger</ComboboxButton>
+                  <ComboboxOptions>
+                    <ComboboxOption value="a">Option A</ComboboxOption>
+                    <ComboboxOption value="b">Option B</ComboboxOption>
+                    <ComboboxOption value="c">Option C</ComboboxOption>
+                  </ComboboxOptions>
+                </Combobox>
               </form>
             `,
             setup() {
@@ -4683,6 +4826,75 @@ describe('Keyboard interactions', () => {
       )
     })
   })
+
+  it(
+    'should sync the active index properly',
+    suppressConsoleLogs(async () => {
+      renderTemplate({
+        template: html`
+          <Combobox v-model="value" v-slot="{ activeIndex }">
+            <ComboboxInput @input="filter" />
+            <ComboboxButton>Trigger</ComboboxButton>
+            <span data-test="idx">{{ activeIndex }}</span>
+            <ComboboxOptions>
+              <ComboboxOption v-for="option in options" :value="option" :key="option"
+                >{{ option }}</ComboboxOption
+              >
+            </ComboboxOptions>
+          </Combobox>
+        `,
+        setup: () => {
+          let value = ref(null)
+          let options = ref(['Option A', 'Option B', 'Option C', 'Option D'])
+
+          let query = ref('')
+          let filteredOptions = computed(() => {
+            return query.value === ''
+              ? options.value
+              : options.value.filter((option) => option.includes(query.value))
+          })
+
+          function filter(event: Event & { target: HTMLInputElement }) {
+            query.value = event.target.value
+          }
+
+          return { value, options: filteredOptions, filter }
+        },
+      })
+
+      // Open combobox
+      await click(getComboboxButton())
+
+      let activeIndexEl = document.querySelector('[data-test="idx"]')
+      function activeIndex() {
+        return Number(activeIndexEl?.innerHTML)
+      }
+
+      expect(activeIndex()).toEqual(0)
+
+      let options: ReturnType<typeof getComboboxOptions>
+
+      await focus(getComboboxInput())
+      await type(word('Option B'))
+
+      // Option B should be active
+      options = getComboboxOptions()
+      expect(options[0]).toHaveTextContent('Option B')
+      assertActiveComboboxOption(options[0])
+
+      expect(activeIndex()).toEqual(0)
+
+      // Reveal all options again
+      await type(word('Option'))
+
+      // Option B should still be active
+      options = getComboboxOptions()
+      expect(options[1]).toHaveTextContent('Option B')
+      assertActiveComboboxOption(options[1])
+
+      expect(activeIndex()).toEqual(1)
+    })
+  )
 })
 
 describe('Mouse interactions', () => {

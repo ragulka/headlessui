@@ -51,6 +51,7 @@ import { useResolveButtonType } from '../../hooks/use-resolve-button-type'
 import { useOwnerDocument } from '../../hooks/use-owner'
 import { useEvent } from '../../hooks/use-event'
 import { useTrackedPointer } from '../../hooks/use-tracked-pointer'
+import { useTextValue } from '../../hooks/use-text-value'
 
 enum MenuStates {
   Open,
@@ -69,6 +70,7 @@ type MenuItemDataRef = MutableRefObject<{
 }>
 
 interface StateDefinition {
+  __demoMode: boolean
   menuState: MenuStates
   buttonRef: MutableRefObject<HTMLButtonElement | null>
   itemsRef: MutableRefObject<HTMLDivElement | null>
@@ -141,7 +143,12 @@ let reducers: {
   },
   [ActionTypes.OpenMenu](state) {
     if (state.menuState === MenuStates.Open) return state
-    return { ...state, menuState: MenuStates.Open }
+    return {
+      ...state,
+      /* We can turn off demo mode once we re-open the `Menu` */
+      __demoMode: false,
+      menuState: MenuStates.Open,
+    }
   },
   [ActionTypes.GoToItem]: (state, action) => {
     let adjustedState = adjustOrderedState(state)
@@ -238,14 +245,23 @@ interface MenuRenderPropArg {
   close: () => void
 }
 
-export type MenuProps<TTag extends ElementType> = Props<TTag, MenuRenderPropArg>
+export type MenuProps<TTag extends ElementType> = Props<
+  TTag,
+  MenuRenderPropArg,
+  never,
+  {
+    __demoMode?: boolean
+  }
+>
 
 function MenuFn<TTag extends ElementType = typeof DEFAULT_MENU_TAG>(
   props: MenuProps<TTag>,
   ref: Ref<HTMLElement>
 ) {
+  let { __demoMode = false, ...theirProps } = props
   let reducerBag = useReducer(stateReducer, {
-    menuState: MenuStates.Closed,
+    __demoMode,
+    menuState: __demoMode ? MenuStates.Open : MenuStates.Closed,
     buttonRef: createRef(),
     itemsRef: createRef(),
     items: [],
@@ -279,7 +295,6 @@ function MenuFn<TTag extends ElementType = typeof DEFAULT_MENU_TAG>(
     [menuState, close]
   )
 
-  let theirProps = props
   let ourProps = { ref: menuRef }
 
   return (
@@ -385,7 +400,7 @@ function ButtonFn<TTag extends ElementType = typeof DEFAULT_BUTTON_TAG>(
     type: useResolveButtonType(props, state.buttonRef),
     'aria-haspopup': 'menu',
     'aria-controls': state.itemsRef.current?.id,
-    'aria-expanded': props.disabled ? undefined : state.menuState === MenuStates.Open,
+    'aria-expanded': state.menuState === MenuStates.Open,
     onKeyDown: handleKeyDown,
     onKeyUp: handleKeyUp,
     onClick: handleClick,
@@ -604,6 +619,7 @@ function ItemFn<TTag extends ElementType = typeof DEFAULT_ITEM_TAG>(
   let itemRef = useSyncRefs(ref, internalItemRef)
 
   useIsoMorphicEffect(() => {
+    if (state.__demoMode) return
     if (state.menuState !== MenuStates.Open) return
     if (!active) return
     if (state.activationTrigger === ActivationTrigger.Pointer) return
@@ -613,6 +629,7 @@ function ItemFn<TTag extends ElementType = typeof DEFAULT_ITEM_TAG>(
     })
     return d.dispose
   }, [
+    state.__demoMode,
     internalItemRef,
     active,
     state.menuState,
@@ -620,14 +637,19 @@ function ItemFn<TTag extends ElementType = typeof DEFAULT_ITEM_TAG>(
     /* We also want to trigger this when the position of the active item changes so that we can re-trigger the scrollIntoView */ state.activeItemIndex,
   ])
 
-  let bag = useRef<MenuItemDataRef['current']>({ disabled, domRef: internalItemRef })
+  let getTextValue = useTextValue(internalItemRef)
+
+  let bag = useRef<MenuItemDataRef['current']>({
+    disabled,
+    domRef: internalItemRef,
+    get textValue() {
+      return getTextValue()
+    },
+  })
 
   useIsoMorphicEffect(() => {
     bag.current.disabled = disabled
   }, [bag, disabled])
-  useIsoMorphicEffect(() => {
-    bag.current.textValue = internalItemRef.current?.textContent?.toLowerCase()
-  }, [bag, internalItemRef])
 
   useIsoMorphicEffect(() => {
     dispatch({ type: ActionTypes.RegisterItem, id, dataRef: bag })

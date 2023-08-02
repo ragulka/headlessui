@@ -778,13 +778,38 @@ function InputFn<
   //     - By clicking `outside` of the Combobox
   useWatch(
     ([currentDisplayValue, state], [oldCurrentDisplayValue, oldState]) => {
+      // When the user is typing, we want to not touch the `input` at all. Especially when they are
+      // using an IME, we don't want to mess with the input at all.
       if (isTyping.current) return
-      if (!data.inputRef.current) return
+
+      let input = data.inputRef.current
+      if (!input) return
+
       if (oldState === ComboboxState.Open && state === ComboboxState.Closed) {
-        data.inputRef.current.value = currentDisplayValue
+        input.value = currentDisplayValue
       } else if (currentDisplayValue !== oldCurrentDisplayValue) {
-        data.inputRef.current.value = currentDisplayValue
+        input.value = currentDisplayValue
       }
+
+      // Once we synced the input value, we want to make sure the cursor is at the end of the input
+      // field. This makes it easier to continue typing and append to the query. We will bail out if
+      // the user is currently typing, because we don't want to mess with the cursor position while
+      // typing.
+      requestAnimationFrame(() => {
+        if (isTyping.current) return
+        if (!input) return
+
+        let { selectionStart, selectionEnd } = input
+
+        // A custom selection is used, no need to move the caret
+        if (Math.abs((selectionEnd ?? 0) - (selectionStart ?? 0)) !== 0) return
+
+        // A custom caret position is used, no need to move the caret
+        if (selectionStart !== 0) return
+
+        // Move the caret to the end
+        input.setSelectionRange(input.value.length, input.value.length)
+      })
     },
     [currentDisplayValue, data.comboboxState]
   )
@@ -798,6 +823,10 @@ function InputFn<
   useWatch(
     ([newState], [oldState]) => {
       if (newState === ComboboxState.Open && oldState === ComboboxState.Closed) {
+        // When the user is typing, we want to not touch the `input` at all. Especially when they are
+        // using an IME, we don't want to mess with the input at all.
+        if (isTyping.current) return
+
         let input = data.inputRef.current
         if (!input) return
 
@@ -825,7 +854,7 @@ function InputFn<
     isComposing.current = true
   })
   let handleCompositionEnd = useEvent(() => {
-    setTimeout(() => {
+    d.nextFrame(() => {
       isComposing.current = false
     })
   })
@@ -855,6 +884,10 @@ function InputFn<
       case Keys.Enter:
         isTyping.current = false
         if (data.comboboxState !== ComboboxState.Open) return
+
+        // When the user is still in the middle of composing by using an IME, then we don't want to
+        // submit this value and close the Combobox yet. Instead, we will fallback to the default
+        // behaviour which is to "end" the composition.
         if (isComposing.current) return
 
         event.preventDefault()
@@ -953,8 +986,16 @@ function InputFn<
   })
 
   let handleChange = useEvent((event: React.ChangeEvent<HTMLInputElement>) => {
-    actions.openCombobox()
+    // Always call the onChange listener even if the user is still typing using an IME (Input Method
+    // Editor).
+    //
+    // The main issue is Android, where typing always uses the IME APIs. Just waiting until the
+    // compositionend event is fired to trigger an onChange is not enough, because then filtering
+    // options while typing won't work at all because we are still in "composing" mode.
     onChange?.(event)
+
+    // Open the combobox to show the results based on what the user has typed
+    actions.openCombobox()
   })
 
   let handleBlur = useEvent(() => {
@@ -979,7 +1020,7 @@ function InputFn<
     role: 'combobox',
     type,
     'aria-controls': data.optionsRef.current?.id,
-    'aria-expanded': data.disabled ? undefined : data.comboboxState === ComboboxState.Open,
+    'aria-expanded': data.comboboxState === ComboboxState.Open,
     'aria-activedescendant':
       data.activeOptionIndex === null ? undefined : data.options[data.activeOptionIndex]?.id,
     'aria-labelledby': labelledby,
@@ -1111,7 +1152,7 @@ function ButtonFn<TTag extends ElementType = typeof DEFAULT_BUTTON_TAG>(
     tabIndex: -1,
     'aria-haspopup': 'listbox',
     'aria-controls': data.optionsRef.current?.id,
-    'aria-expanded': data.disabled ? undefined : data.comboboxState === ComboboxState.Open,
+    'aria-expanded': data.comboboxState === ComboboxState.Open,
     'aria-labelledby': labelledby,
     disabled: data.disabled,
     onClick: handleClick,
@@ -1426,10 +1467,10 @@ interface ComponentCombobox extends HasDisplayName {
     props: ComboboxProps<TValue, true, false, TTag> & RefProp<typeof ComboboxFn>
   ): JSX.Element
   <TValue, TTag extends ElementType = typeof DEFAULT_COMBOBOX_TAG>(
-    props: ComboboxProps<TValue, false, false, TTag> & RefProp<typeof ComboboxFn>
+    props: ComboboxProps<TValue, false, true, TTag> & RefProp<typeof ComboboxFn>
   ): JSX.Element
   <TValue, TTag extends ElementType = typeof DEFAULT_COMBOBOX_TAG>(
-    props: ComboboxProps<TValue, false, true, TTag> & RefProp<typeof ComboboxFn>
+    props: ComboboxProps<TValue, false, false, TTag> & RefProp<typeof ComboboxFn>
   ): JSX.Element
 }
 

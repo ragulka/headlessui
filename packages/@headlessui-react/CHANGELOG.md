@@ -7,12 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Nothing yet!
+
+## [1.7.16] - 2023-07-27
+
+### Fixed
+
+- Ensure the caret is in a consistent position when syncing the `Combobox.Input` value ([#2568](https://github.com/tailwindlabs/headlessui/pull/2568))
+- Improve "outside click" behaviour in combination with 3rd party libraries ([#2572](https://github.com/tailwindlabs/headlessui/pull/2572))
+- Ensure IME works on Android devices ([#2580](https://github.com/tailwindlabs/headlessui/pull/2580))
+- Calculate `aria-expanded` purely based on the open/closed state ([#2610](https://github.com/tailwindlabs/headlessui/pull/2610))
+- Submit form on `Enter` even if no submit-like button was found ([#2613](https://github.com/tailwindlabs/headlessui/pull/2613))
+
+## [1.7.15] - 2023-06-01
+
+### Added
+
+- [internal] add demo mode to `Menu` and `Popover` components ([#2448](https://github.com/tailwindlabs/headlessui/pull/2448))
+
+### Fixed
+
+- Ensure `FocusTrap` is only active when the given `enabled` value is `true` ([#2456](https://github.com/tailwindlabs/headlessui/pull/2456))
+- Stop `<Transition appear>` from overwriting classes on re-render ([#2457](https://github.com/tailwindlabs/headlessui/pull/2457))
+- Improve control over `Menu` and `Listbox` options while searching ([#2471](https://github.com/tailwindlabs/headlessui/pull/2471))
+- Consider clicks inside iframes to be "outside" ([#2485](https://github.com/tailwindlabs/headlessui/pull/2485))
+- Ensure moving focus within a `Portal` component, does not close the `Popover` component ([#2492](https://github.com/tailwindlabs/headlessui/pull/2492))
+
+### Changed
+
+- Move `types` condition to the front ([#2469](https://github.com/tailwindlabs/headlessui/pull/2469))
+
+## [1.7.14] - 2023-04-12
+
 ### Fixed
 
 - Fix focus styles showing up when using the mouse ([#2347](https://github.com/tailwindlabs/headlessui/pull/2347))
 - Fix "Can't perform a React state update on an unmounted component." when using the `Transition` component ([#2374](https://github.com/tailwindlabs/headlessui/pull/2374))
 - Add `FocusTrap` event listeners once document has loaded ([#2389](https://github.com/tailwindlabs/headlessui/pull/2389))
 - Fix `className` hydration for `<Transition appear>` ([#2390](https://github.com/tailwindlabs/headlessui/pull/2390))
+- Improve `Combobox` types to improve false positives ([#2411](https://github.com/tailwindlabs/headlessui/pull/2411))
+- Merge `className` correctly when it’s a function ([#2412](https://github.com/tailwindlabs/headlessui/pull/2412))
+- Correctly handle IME composition in `<Combobox.Input>` ([#2426](https://github.com/tailwindlabs/headlessui/pull/2426))
 
 ### Added
 
@@ -486,7 +521,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Everything!
 
-[unreleased]: https://github.com/tailwindlabs/headlessui/compare/@headlessui/react@v1.7.13...HEAD
+[unreleased]: https://github.com/tailwindlabs/headlessui/compare/@headlessui/react@v1.7.16...HEAD
+[1.7.16]: https://github.com/tailwindlabs/headlessui/compare/@headlessui/react@v1.7.15...@headlessui/react@v1.7.16
+[1.7.15]: https://github.com/tailwindlabs/headlessui/compare/@headlessui/react@v1.7.14...@headlessui/react@v1.7.15
+[1.7.14]: https://github.com/tailwindlabs/headlessui/compare/@headlessui/react@v1.7.13...@headlessui/react@v1.7.14
 [1.7.13]: https://github.com/tailwindlabs/headlessui/compare/@headlessui/react@v1.7.12...@headlessui/react@v1.7.13
 [1.7.12]: https://github.com/tailwindlabs/headlessui/compare/@headlessui/react@v1.7.11...@headlessui/react@v1.7.12
 [1.7.11]: https://github.com/tailwindlabs/headlessui/compare/@headlessui/react@v1.7.10...@headlessui/react@v1.7.11

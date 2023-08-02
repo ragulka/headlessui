@@ -1,4 +1,4 @@
-import { nextTick, ref, watch, reactive } from 'vue'
+import { nextTick, ref, watch, reactive, defineComponent, defineExpose } from 'vue'
 import { createRenderTemplate, render } from '../../test-utils/vue-testing-library'
 
 import { RadioGroup, RadioGroupOption, RadioGroupLabel, RadioGroupDescription } from './radio-group'
@@ -495,6 +495,26 @@ describe('Rendering', () => {
     // Verify that the third radio group option is active
     assertActiveElement(getByText('Option 3'))
   })
+
+  it(
+    'should be possible to use a custom component using the `as` prop without crashing',
+    suppressConsoleLogs(async () => {
+      let CustomComponent = defineComponent({
+        template: html`<button><slot /></button>`,
+      })
+
+      renderTemplate({
+        template: html`
+          <RadioGroup name="assignee">
+            <RadioGroupOption :as="CustomComponent" value="alice">Alice</RadioGroupOption>
+            <RadioGroupOption :as="CustomComponent" value="bob">Bob</RadioGroupOption>
+            <RadioGroupOption :as="CustomComponent" value="charlie">Charlie</RadioGroupOption>
+          </RadioGroup>
+        `,
+        setup: () => ({ CustomComponent }),
+      })
+    })
+  )
 
   describe('Equality', () => {
     let options = [
@@ -1444,6 +1464,42 @@ describe('Keyboard interactions', () => {
               <RadioGroupOption value="charlie">Charlie</RadioGroupOption>
             </RadioGroup>
             <button>Submit</button>
+          </form>
+        `,
+        setup() {
+          let value = ref('bob')
+          return {
+            value,
+            handleSubmit(event: KeyboardEvent) {
+              event.preventDefault()
+              submits([...new FormData(event.currentTarget as HTMLFormElement).entries()])
+            },
+          }
+        },
+      })
+
+      // Focus the RadioGroup
+      await press(Keys.Tab)
+
+      // Press enter (which should submit the form)
+      await press(Keys.Enter)
+
+      // Verify the form was submitted
+      expect(submits).toHaveBeenCalledTimes(1)
+      expect(submits).toHaveBeenCalledWith([['option', 'bob']])
+    })
+
+    it('should submit the form on `Enter` (when no submit button was found)', async () => {
+      let submits = jest.fn()
+
+      renderTemplate({
+        template: html`
+          <form @submit="handleSubmit">
+            <RadioGroup v-model="value" name="option">
+              <RadioGroupOption value="alice">Alice</RadioGroupOption>
+              <RadioGroupOption value="bob">Bob</RadioGroupOption>
+              <RadioGroupOption value="charlie">Charlie</RadioGroupOption>
+            </RadioGroup>
           </form>
         `,
         setup() {

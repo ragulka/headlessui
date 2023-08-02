@@ -690,6 +690,78 @@ describe('Rendering', () => {
         expect(getComboboxInput()).toHaveValue('charlie - closed')
       })
     )
+
+    it(
+      'should move the caret to the end of the input when syncing the value',
+      suppressConsoleLogs(async () => {
+        function Example() {
+          return (
+            <Combobox>
+              <Combobox.Input />
+              <Combobox.Button />
+
+              <Combobox.Options>
+                <Combobox.Option value="alice">alice</Combobox.Option>
+                <Combobox.Option value="bob">bob</Combobox.Option>
+                <Combobox.Option value="charlie">charlie</Combobox.Option>
+              </Combobox.Options>
+            </Combobox>
+          )
+        }
+
+        render(<Example />)
+
+        // Open the combobox
+        await click(getComboboxButton())
+
+        // Choose charlie
+        await click(getComboboxOptions()[2])
+        expect(getComboboxInput()).toHaveValue('charlie')
+
+        // Ensure the selection is in the correct position
+        expect(getComboboxInput()?.selectionStart).toBe('charlie'.length)
+        expect(getComboboxInput()?.selectionEnd).toBe('charlie'.length)
+      })
+    )
+
+    // Skipped because JSDOM doesn't implement this properly: https://github.com/jsdom/jsdom/issues/3524
+    xit(
+      'should not move the caret to the end of the input when syncing the value if a custom selection is made',
+      suppressConsoleLogs(async () => {
+        function Example() {
+          return (
+            <Combobox>
+              <Combobox.Input
+                onFocus={(e) => {
+                  e.target.select()
+                  e.target.setSelectionRange(0, e.target.value.length)
+                }}
+              />
+              <Combobox.Button />
+
+              <Combobox.Options>
+                <Combobox.Option value="alice">alice</Combobox.Option>
+                <Combobox.Option value="bob">bob</Combobox.Option>
+                <Combobox.Option value="charlie">charlie</Combobox.Option>
+              </Combobox.Options>
+            </Combobox>
+          )
+        }
+
+        render(<Example />)
+
+        // Open the combobox
+        await click(getComboboxButton())
+
+        // Choose charlie
+        await click(getComboboxOptions()[2])
+        expect(getComboboxInput()).toHaveValue('charlie')
+
+        // Ensure the selection is in the correct position
+        expect(getComboboxInput()?.selectionStart).toBe(0)
+        expect(getComboboxInput()?.selectionEnd).toBe('charlie'.length)
+      })
+    )
   })
 
   describe('Combobox.Label', () => {
@@ -2730,6 +2802,54 @@ describe('Keyboard interactions', () => {
                 </Combobox>
 
                 <button>Submit</button>
+              </form>
+            )
+          }
+
+          render(<Example />)
+
+          // Focus the input field
+          await focus(getComboboxInput())
+          assertActiveElement(getComboboxInput())
+
+          // Press enter (which should submit the form)
+          await press(Keys.Enter)
+
+          // Verify the form was submitted
+          expect(submits).toHaveBeenCalledTimes(1)
+          expect(submits).toHaveBeenCalledWith([['option', 'b']])
+        })
+      )
+
+      it(
+        'should submit the form on `Enter` (when no submit button was found)',
+        suppressConsoleLogs(async () => {
+          let submits = jest.fn()
+
+          function Example() {
+            let [value, setValue] = useState<string>('b')
+
+            return (
+              <form
+                onKeyUp={(event) => {
+                  // JSDom doesn't automatically submit the form but if we can
+                  // catch an `Enter` event, we can assume it was a submit.
+                  if (event.key === 'Enter') event.currentTarget.submit()
+                }}
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  submits([...new FormData(event.currentTarget).entries()])
+                }}
+              >
+                <Combobox value={value} onChange={setValue} name="option">
+                  <Combobox.Input onChange={NOOP} />
+                  <Combobox.Button>Trigger</Combobox.Button>
+                  <Combobox.Options>
+                    <Combobox.Option value="a">Option A</Combobox.Option>
+                    <Combobox.Option value="b">Option B</Combobox.Option>
+                    <Combobox.Option value="c">Option C</Combobox.Option>
+                  </Combobox.Options>
+                </Combobox>
               </form>
             )
           }
